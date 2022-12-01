@@ -1,0 +1,60 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    background-color: cornsilk;
+  }
+  .Title {
+    text-align: center;
+    background-color:lightblue;
+  /* I want to make the box a specific width on the X axis.*/
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  h1 {
+    font-family: 'pixelT';
+  }
+  p {
+    font-family: 'minecraftia';
+  }
+  button {
+    font-family: 'pixelT';
+  }
+  @font-face {
+    font-family: 'minecraftia';
+    src: url('./Minecraftia-Regular.ttf') format('truetype');
+  }
+  @font-face {
+    font-family: 'pixelT';
+    src: url('./STV5730A.ttf') format('truetype');
+  }
+  .grid {
+    width: 200px;
+    height: 200px;
+    border: 1px solid red;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .grid div {
+    width: 20px;
+    height: 20px;
+    /*border:1px black solid;
+  box-sizing:border-box*/
+  }
+  .snake {
+    background: blue;
+  }
+  .apple {
+    background: yellow;
+    border-radius: 20px;
+  }
+  .popup {
+    background: rgb(32, 31, 31);
+    width: 100px;
+    height: 100px;
+    top: 100px;
+    left: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
