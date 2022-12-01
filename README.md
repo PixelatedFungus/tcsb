@@ -7,14 +7,14 @@
   - the game loop does not allow the player to restart the game
 
 # egg_pygame
-egg_pygame is pretty much a practice with pygame that I am working on with a student
-it is far from complete and there is no goal for completion
+- egg_pygame is pretty much a practice with pygame that I am working on with a student
+- it is far from complete and there is no goal for completion
 
 # geometry_dash
-geometry_dash is a remake of Geometry Dash
+- geometry_dash is a remake of Geometry Dash
 - it is far from complete
   - the collisions have not been implemented properly with many glitches
 
 # trial_project
-trial_project contains a simple snake game made with PyGame
+- trial_project contains a simple snake game made with PyGame
 - it is the complete but not identical to the original Snake game since it would take too long to fill out as a trial project
