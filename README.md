@@ -18,3 +18,5 @@
 # trial_project
 - trial_project contains a simple snake game made with PyGame
 - it is the complete but not identical to the original Snake game since it would take too long to fill out as a trial project
+- use skeleton.py for the students
+  - I usually copy skeleton.py onto a blank Replit and have the trial students fill out the blanks according to the TODO's
