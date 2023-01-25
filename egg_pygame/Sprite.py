@@ -71,6 +71,7 @@ class Character(Sprite):
         self.h_vel = 0
         self.acceleration = 0.4
         self.deceleration_factor = 2
+        self.max_h_speed = 5
 
         # Vertical movement
         self.v_vel = 0
@@ -116,8 +117,6 @@ class Character(Sprite):
                 self.rect.top = block.bottom
                 self.collision_directions["top"] = True
 
-        # Checking for collisions
-        # TODO check for top collision
         if self.collision_directions["bottom"]:
             self.v_vel = 0
             self.air_timer = 0
@@ -130,7 +129,7 @@ class Character(Sprite):
 
         # ----- HORIZONTAL START ----- 
         # Move horizontally and accelerate
-        if -5 < self.h_vel < 5:
+        if -self.max_h_speed < self.h_vel < self.max_h_speed:
             if self.move_right:
                 self.h_vel += self.acceleration
             if self.move_left:

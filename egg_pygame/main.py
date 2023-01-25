@@ -28,7 +28,7 @@ def main():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit();
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_d:
                     player.move_right = True
