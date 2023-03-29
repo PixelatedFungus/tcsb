@@ -41,6 +41,14 @@ def load_cacti(cacti_num):
     """
     return os.path.join(".", "sprites", "obstacles", "sprite_cactus" + str(cacti_num) + ".png")
 
+def load_pterodactyl(pterodactyl_num):
+    """
+    Loads pterodactyl sprites
+    """
+    return os.path.join(".", "sprites", "obstacles", "sprite_pterodactyl" + str(pterodactyl_num) + ".png")
+
+
+# Loading in dinosaur sprites
 dinosaur_size = (32, 32)
 dinosaur_jump = pygame.image.load(load_dinosaur(0))
 dinosaur_run = [
@@ -52,7 +60,9 @@ dinosaur_duck = [
     pygame.image.load(load_dinosaur(4))
 ]
 dinosaur_lose = pygame.image.load(load_dinosaur(5))
+dinosaur_rect = pygame.Rect((0, 0), dinosaur_size)
 
+# Loading in heaven sprites
 star_r = pygame.image.load(load_sky("star_r"))
 star_t = pygame.image.load(load_sky("star_t"))
 moon = pygame.image.load(load_sky("moon"))
@@ -69,6 +79,7 @@ cloud_arr = []
 
 sky_range = range(20, 50)
 
+# Loading in ground images
 ground_images = [
         pygame.image.load(load_ground(0)),
         pygame.image.load(load_ground(1)),
@@ -76,7 +87,7 @@ ground_images = [
         pygame.image.load(load_ground(3)),
         pygame.image.load(load_ground(4)),
         pygame.image.load(load_ground(5)),
-        pygame.image.load(load_ground(6)),
+        pygame.image.load(load_ground(6))
         ]
 ground_scroll = 5
 ground_delay = 0
@@ -91,6 +102,14 @@ cacti_images = [pygame.image.load(load_cacti(0)),
         pygame.image.load(load_cacti(2)),
         pygame.image.load(load_cacti(3))]
 
+pterodactyl_images = [pygame.image.load(load_pterodactyl(0)),
+        pygame.image.load(load_pterodactyl(1))]
+pterodactyl_frame_delay = 1
+pterodactyl_frame_delay_SET = 5
+pterodactyl_height_choices = [STRETCHSIZE[1] / 2 - int(1 * dinosaur_size[1]),
+        STRETCHSIZE[1] / 2 - dinosaur_size[1] / 2]
+
+# Dinosaur variables
 starting_position = STRETCHSIZE[1] / 2 - dinosaur_size[1] / 2
 dino_can_jump = True
 dino_duck = False
@@ -100,6 +119,7 @@ height = starting_position
 gravity = 1 
 velocity = 0
 
+obstacle_rects = []
 
 def drawDinosaur(dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height):
     """
@@ -135,7 +155,6 @@ def drawDinosaur(dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity,
         STRETCHSURF.blit(dinosaur_jump, (STRETCHSIZE[0] / 40, height))
 
     return dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height
-
 
 def jump(dino_can_jump, velocity, height):
     if dino_can_jump == True:
@@ -221,37 +240,50 @@ def draw_heaven(moon_delay, heaven_arr):
             new_heaven_arr.append(heaven)
     return moon_delay, new_heaven_arr
 
-def draw_obstacles(obstacle_wait, obstacle_delay, obstacle_arr, obstacle_scroll):
+def draw_obstacles(obstacle_wait, obstacle_delay, obstacle_arr, obstacle_scroll, pterodactyl_frame_delay):
     if obstacle_wait == 0:
         obstacle_wait = obstacle_delay
-        obstacle_choice = numpy.random.choice(['cactus', 'pterodactyl'])
+        obstacle_choice = numpy.random.choice(['cactus', 'pterodactyl'], p=[0.7, 0.3])
         if obstacle_choice == 'cactus':
-            obstacle_arr = draw_cactus(obstacle_arr, obstacle_scroll)
-        else:
-            draw_pterodactyl()
+            obstacle_arr = draw_cactus(obstacle_arr)
+        elif obstacle_choice == 'pterodactyl':
+            obstacle_arr = draw_pterodactyl(obstacle_arr, pterodactyl_height_choices)
     else:
         obstacle_wait -= 1
-    
+    pterodactyl_frame_delay -= 1
     new_obstacle_arr = []
     for obstacle_info in obstacle_arr:
         obstacle_x = obstacle_info[0]
         obstacle_y = obstacle_info[1]
         obstacle_surface = obstacle_info[2]
+        obstacle_type = obstacle_info[3]
+        if (obstacle_type == 'pterodactyl'):
+            if (pterodactyl_frame_delay <= 0):
+                pterodactyl_frame_delay = pterodactyl_frame_delay_SET
+                obstacle_surface = pterodactyl_images[obstacle_info[4]]
+                obstacle_info[4] = (obstacle_info[4] + 1) % 2
+            else:
+                obstacle_surface = pterodactyl_images[obstacle_info[4]]
         STRETCHSURF.blit(obstacle_surface, (obstacle_x, obstacle_y))
         obstacle_info[0] -= obstacle_scroll
         if obstacle_info[0] > -obstacle_surface.get_width():
             new_obstacle_arr.append(obstacle_info)
-    return obstacle_wait, obstacle_arr
+    return obstacle_wait, new_obstacle_arr, pterodactyl_frame_delay
 
-def draw_cactus(obstacle_arr, obstacle_scroll):
+def draw_cactus(obstacle_arr):
     cactus_image_choice = numpy.random.choice(cacti_images)
     cactus_x = STRETCHSIZE[0]
     cactus_y = STRETCHSIZE[1] / 2 - cactus_image_choice.get_height() / 2
     obstacle_arr.append([cactus_x, cactus_y, cactus_image_choice, 'cactus'])
     return obstacle_arr
 
-def draw_pterodactyl():
-    pass
+def draw_pterodactyl(obstacle_arr, pterodactyl_height_choices):
+    pterodactyl_height_choice = numpy.random.choice(pterodactyl_height_choices)
+    pterodactyl_x = STRETCHSIZE[0]
+    pterodactyl_y = pterodactyl_height_choice
+    frame = 0
+    obstacle_arr.append([pterodactyl_x, pterodactyl_y, pterodactyl_images[frame], 'pterodactyl', frame])
+    return obstacle_arr
 
 def drawGround(ground_delay, ground_arr):
     if ground_delay <= ground_scroll % ground_images[0].get_width():
@@ -269,6 +301,14 @@ def drawGround(ground_delay, ground_arr):
             new_ground_arr.append(ground)
     return ground_delay, ground_arr
 
+def checkCollision(obstacle_rects):
+    for obstacle_rect in obstacle_rect:
+        if dinosaur_rect.colliderect(obstacle_rect):
+            lose()
+    
+def lose():
+    pass
+
 while True:
     STRETCHSURF.fill((255, 255, 255))
     for event in pygame.event.get():
@@ -277,7 +317,7 @@ while True:
             sys.exit()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP or event.key == pygame.K_SPACE:
-                dino_can_jump, velocity, height = jump(dino_can_jump, velocity,height)
+                dino_can_jump, velocity, height = jump(dino_can_jump, velocity, height)
             elif event.key == pygame.K_DOWN:
                 dino_duck = True
 
@@ -289,7 +329,8 @@ while True:
     cloud_arr = draw_clouds(cloud_arr)
     ground_delay, ground_arr = drawGround(ground_delay, ground_arr)
     dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height = drawDinosaur(dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height)
-    obstacle_wait, obstacle_arr = draw_obstacles(obstacle_wait, obstacle_delay, obstacle_arr, obstacle_scroll)
+    obstacle_wait, obstacle_arr, pterodactyl_frame_delay = draw_obstacles(obstacle_wait, obstacle_delay, obstacle_arr, obstacle_scroll, pterodactyl_frame_delay)
+    # checkCollision(obstacle_rects)
     pygame.transform.scale(STRETCHSURF, DISPLAYSIZE, DISPLAYSURF)
     pygame.display.update()
     clock.tick(FPS)
