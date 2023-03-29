@@ -60,7 +60,6 @@ dinosaur_duck = [
     pygame.image.load(load_dinosaur(4))
 ]
 dinosaur_lose = pygame.image.load(load_dinosaur(5))
-dinosaur_rect = pygame.Rect((0, 0), dinosaur_size)
 
 # Loading in heaven sprites
 star_r = pygame.image.load(load_sky("star_r"))
@@ -119,9 +118,7 @@ height = starting_position
 gravity = 1 
 velocity = 0
 
-obstacle_rects = []
-
-def drawDinosaur(dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height):
+def draw_dinosaur(dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height):
     """
     Picks the right dinosaur sprite(s) to draw and draws it onto the screen
     """
@@ -285,7 +282,7 @@ def draw_pterodactyl(obstacle_arr, pterodactyl_height_choices):
     obstacle_arr.append([pterodactyl_x, pterodactyl_y, pterodactyl_images[frame], 'pterodactyl', frame])
     return obstacle_arr
 
-def drawGround(ground_delay, ground_arr):
+def draw_ground(ground_delay, ground_arr):
     if ground_delay <= ground_scroll % ground_images[0].get_width():
         ground_delay = ground_images[0].get_width()
         ground_choice = numpy.random.choice(ground_images)
@@ -301,13 +298,49 @@ def drawGround(ground_delay, ground_arr):
             new_ground_arr.append(ground)
     return ground_delay, ground_arr
 
-def checkCollision(obstacle_rects):
-    for obstacle_rect in obstacle_rect:
-        if dinosaur_rect.colliderect(obstacle_rect):
-            lose()
-    
+def checkCollision(obstacle_arr):
+    for obstacle_entry in obstacle_arr:
+        # We create a rectangle representing the location of the dinosaur sprite
+        # if we are on the floor and we are ducking and on the floor, we want to flatten the rectangle
+        obstacle_rect = pygame.Rect((obstacle_entry[0] + 8, obstacle_entry[1] + 8), ((obstacle_entry[2].get_size()[0] // 4) * 3, obstacle_entry[2].get_size()[1] // 2))
+
+        if dino_duck and dino_can_jump:
+            dinosaur_rect = pygame.Rect((STRETCHSIZE[0] / 40, height + 16), (dinosaur_size[0], dinosaur_size[1] // 2))
+        else:
+            dinosaur_rect = pygame.Rect((STRETCHSIZE[0] / 40 + 8, height), (dinosaur_size[0] / 2, dinosaur_size[1]))
+        # pygame.draw.rect(STRETCHSURF, (0, 255, 0), dinosaur_rect)
+        # pygame.draw.rect(STRETCHSURF, (255, 0, 0), obstacle_rect)
+        if (dinosaur_rect.colliderect(obstacle_rect)):
+            return lose()
+    return height, dino_can_jump, dino_duck, velocity, heaven_arr, cloud_arr, ground_arr, obstacle_arr
+
 def lose():
-    pass
+    # switch dinosaur sprite
+    STRETCHSURF.blit(dinosaur_lose, (STRETCHSIZE[0] / 40, height))
+    pygame.transform.scale(STRETCHSURF, DISPLAYSIZE, DISPLAYSURF)
+    pygame.display.update()
+    # hold position and don't do anything
+    exit_loop = False
+    while not exit_loop:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                exit_loop = True
+    return reset_game()
+
+def reset_game():
+    height = starting_position
+    dino_can_jump = True
+    dino_duck = False
+    velocity = 0
+    heaven_arr = []
+    cloud_arr = []
+    ground_arr = []
+    obstacle_arr = []
+    return height, dino_can_jump, dino_duck, velocity, heaven_arr, cloud_arr, ground_arr, obstacle_arr
+    
 
 while True:
     STRETCHSURF.fill((255, 255, 255))
@@ -327,10 +360,10 @@ while True:
 
     moon_delay, heaven_arr = draw_heaven(moon_delay, heaven_arr)
     cloud_arr = draw_clouds(cloud_arr)
-    ground_delay, ground_arr = drawGround(ground_delay, ground_arr)
-    dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height = drawDinosaur(dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height)
+    ground_delay, ground_arr = draw_ground(ground_delay, ground_arr)
+    dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height = draw_dinosaur(dino_frame, dino_frame_delay, gravity, dino_can_jump, velocity, height)
     obstacle_wait, obstacle_arr, pterodactyl_frame_delay = draw_obstacles(obstacle_wait, obstacle_delay, obstacle_arr, obstacle_scroll, pterodactyl_frame_delay)
-    # checkCollision(obstacle_rects)
+    height, dino_can_jump, dino_duck, velocity, heaven_arr, cloud_arr, ground_arr, obstacle_arr = checkCollision(obstacle_arr)
     pygame.transform.scale(STRETCHSURF, DISPLAYSIZE, DISPLAYSURF)
     pygame.display.update()
     clock.tick(FPS)
