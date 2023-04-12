@@ -302,7 +302,7 @@ def checkCollision(obstacle_arr):
     for obstacle_entry in obstacle_arr:
         # We create a rectangle representing the location of the dinosaur sprite
         # if we are on the floor and we are ducking and on the floor, we want to flatten the rectangle
-        obstacle_rect = pygame.Rect((obstacle_entry[0] + 8, obstacle_entry[1] + 8), ((obstacle_entry[2].get_size()[0] // 4) * 3, obstacle_entry[2].get_size()[1] // 2))
+        obstacle_rect = pygame.Rect((obstacle_entry[0], obstacle_entry[1]), (obstacle_entry[2].get_size()[0], obstacle_entry[2].get_size()[1]))
 
         if dino_duck and dino_can_jump:
             dinosaur_rect = pygame.Rect((STRETCHSIZE[0] / 40, height + 16), (dinosaur_size[0], dinosaur_size[1] // 2))
