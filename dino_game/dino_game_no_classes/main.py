@@ -300,16 +300,18 @@ def draw_ground(ground_delay, ground_arr):
 
 def checkCollision(obstacle_arr):
     for obstacle_entry in obstacle_arr:
+        if obstacle_entry[3] == 'pterodactyl':
+            obstacle_rect = pygame.Rect((obstacle_entry[0] + 4, obstacle_entry[1] + 8), (obstacle_entry[2].get_size()[0] - 8, obstacle_entry[2].get_size()[1] // 2))
+        else:
+            obstacle_rect = pygame.Rect((obstacle_entry[0] + 12, obstacle_entry[1]), (obstacle_entry[2].get_size()[0] // 2, obstacle_entry[2].get_size()[1]))
         # We create a rectangle representing the location of the dinosaur sprite
         # if we are on the floor and we are ducking and on the floor, we want to flatten the rectangle
-        obstacle_rect = pygame.Rect((obstacle_entry[0], obstacle_entry[1]), (obstacle_entry[2].get_size()[0], obstacle_entry[2].get_size()[1]))
-
         if dino_duck and dino_can_jump:
             dinosaur_rect = pygame.Rect((STRETCHSIZE[0] / 40, height + 16), (dinosaur_size[0], dinosaur_size[1] // 2))
         else:
-            dinosaur_rect = pygame.Rect((STRETCHSIZE[0] / 40 + 8, height), (dinosaur_size[0] / 2, dinosaur_size[1]))
-        # pygame.draw.rect(STRETCHSURF, (0, 255, 0), dinosaur_rect)
-        # pygame.draw.rect(STRETCHSURF, (255, 0, 0), obstacle_rect)
+            dinosaur_rect = pygame.Rect((STRETCHSIZE[0] / 40 + 8, height), (dinosaur_size[0] // 2, dinosaur_size[1]))
+        pygame.draw.rect(STRETCHSURF, (0, 255, 0), dinosaur_rect)
+        pygame.draw.rect(STRETCHSURF, (255, 0, 0), obstacle_rect)
         if (dinosaur_rect.colliderect(obstacle_rect)):
             return lose()
     return height, dino_can_jump, dino_duck, velocity, heaven_arr, cloud_arr, ground_arr, obstacle_arr
